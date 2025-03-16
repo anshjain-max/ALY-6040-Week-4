@@ -251,26 +251,58 @@ else:
     fig_scatter.update_layout(height=400)
     st.plotly_chart(fig_scatter, use_container_width=True)
 
-    # Additional Change 2: User Customization Options
-    # Allow users to select the number of top products to display
-    st.subheader("Customize Top Products Display")
-    num_top_products = st.slider("Number of Top Products to Display", min_value=5, max_value=20, value=10)
-    top_n = product_grouped.head(num_top_products)
-    
-    # Display the customized top products chart
-    fig_custom_bar = px.bar(
-        top_n,
+   # ---- Side-by-Side Layout for Charts ----
+col_left, col_right = st.columns(2)
+
+with col_left:
+    # Line Chart
+    fig_line = px.line(
+        daily_grouped,
+        x="Order Date",
+        y=selected_kpi,
+        title=f"{selected_kpi} Over Time",
+        labels={"Order Date": "Date", selected_kpi: selected_kpi},
+        template="plotly_white",
+    )
+    fig_line.update_layout(height=400)
+    st.plotly_chart(fig_line, use_container_width=True, key="line_chart")
+
+with col_right:
+    # Horizontal Bar Chart
+    fig_bar = px.bar(
+        top_10,
         x=selected_kpi,
         y="Product Name",
         orientation="h",
-        title=f"Top {num_top_products} Products by {selected_kpi}",
+        title=f"Top 10 Products by {selected_kpi}",
         labels={selected_kpi: selected_kpi, "Product Name": "Product"},
         color=selected_kpi,
         color_continuous_scale="Blues",
         template="plotly_white",
     )
-    fig_custom_bar.update_layout(
+    fig_bar.update_layout(
         height=400,
         yaxis={"categoryorder": "total ascending"}
     )
-    st.plotly_chart(fig_custom_bar, use_container_width=True)
+    st.plotly_chart(fig_bar, use_container_width=True, key="bar_chart")
+
+# Additional Change 2: Customizable Top Products Display
+num_top_products = st.slider("Number of Top Products to Display", min_value=5, max_value=20, value=10)
+top_n = product_grouped.head(num_top_products)
+
+fig_custom_bar = px.bar(
+    top_n,
+    x=selected_kpi,
+    y="Product Name",
+    orientation="h",
+    title=f"Top {num_top_products} Products by {selected_kpi}",
+    labels={selected_kpi: selected_kpi, "Product Name": "Product"},
+    color=selected_kpi,
+    color_continuous_scale="Blues",
+    template="plotly_white",
+)
+fig_custom_bar.update_layout(
+    height=400,
+    yaxis={"categoryorder": "total ascending"}
+)
+st.plotly_chart(fig_custom_bar, use_container_width=True, key="custom_bar_chart")
